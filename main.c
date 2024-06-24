@@ -12,12 +12,23 @@ void printArray(int *arr, size_t n)
     printf("\n");
 }
 
+int cmp(const void *a, const void *b)
+{
+    return *(int*)a - *(int*)b;
+}
+
 void solve() 
 {
-    const int n = 100000000;
-    int* arr = generateRandomArrayMassive(n, 100000000);
-    printArray(arr, 10);
+    size_t n = 100000000;
+    int* arr = generateRandomArrayMassive(n, n);
+    //printArray(arr, 1000);
     //quickSort(arr, 0, n - 1);
+    //heapSort(arr, n);
+    //timSort(arr, n);
+    introSort(arr, n);
+    //insertionSort(arr, 0, n - 1);
+
+    //qsort(arr, n, sizeof(int), cmp );
     free(arr);
 }
 

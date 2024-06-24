@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <time.h>
 #include <math.h>
+#include <stdio.h>
 
 static const int RUN = 128;
 
@@ -25,62 +26,83 @@ int* generateRandomArrayMassive(size_t size, size_t maxValue)
     return arr;
 }
 
-void quickSort(int* massive, size_t start, size_t end)
+void quickSort(int *arr, size_t start, size_t end)
 {
-	if (start > end) return;
-	int pivot = massive[(start+end)/2]%10;
-	int i = start;
-	int j = end;
+	if (start >= end) return;
+	int pivot = arr[(start+end)/2];
+	size_t i = start;
+	size_t j = end;
 	while (i <= j)
     {
-        while ((massive[i]%10) > pivot) i++;
-        while ((massive[j]%10) < pivot) j--;
+        while (arr[i] < pivot && i < end) i++;
+        while (arr[j] > pivot && j > start) j--;
         if (i <= j)
         {
-            swap(&massive[i], &massive[j]);
-            i++;
-            j--;
+            swap(&arr[i], &arr[j]);
+            if (i != end) i++;
+            if (j != start) j--;
         }
 	}
-	quickSort(massive, start, j);
-	quickSort(massive, i, end);
+	quickSort(arr, start, j);
+	quickSort(arr, i, end);
 }
 
-void heapify(int* arr, size_t n, size_t i)
+void heapify(int *arr, size_t n, size_t i)
 {
     size_t largest = i;
-    size_t l = 2 * i + 1;
-    size_t r = 2 * i + 2;
-    while (l < n)
+    size_t left = 2 * i + 1;
+    size_t right = 2 * i + 2;
+    if (left < n && arr[left] > arr[largest]) largest = left;
+    if (right < n && arr[right] > arr[largest]) largest = right;
+    if (largest != i)
     {
-        if (l < n && arr[l] > arr[largest])
-            largest = l;
-        if (r < n && arr[r] > arr[largest])
-            largest = r;
-
-        if (largest != i)
-        {
-            swap(&arr[i], &arr[largest]);
-            i = largest;
-            l = 2 * i + 1;
-            r = 2 * i + 2;
-        }
-        else
-        {
-            break;
-        }
+        int temp = arr[i];
+        arr[i] = arr[largest];
+        arr[largest] = temp;
+        heapify(arr, n, largest);
     }
 }
 
 void heapSort(int *arr, size_t n)
 {
-    for (size_t i = n / 2 - 1; i >= 0; i--)
-        heapify(arr, n, i);
-    for (size_t i = n - 1; i >= 0; i--)
+    for (size_t i = n / 2; i > 0; i--) heapify(arr, n, i - 1);
+    for (size_t i = n - 1; i > 0; i--)
     {
         swap(&arr[0], &arr[i]);
         heapify(arr, i, 0);
     }
+}
+
+void IntroQuickSort(int *arr, size_t start, size_t end, size_t depth)
+{
+    if (depth == 0)
+    {
+        heapSort(arr, end - start + 1);
+        return;
+    }
+	if (start >= end) return;
+	int pivot = arr[(start+end)/2];
+	size_t i = start;
+	size_t j = end;
+	while (i <= j)
+    {
+        while (arr[i] < pivot && i < end) i++;
+        while (arr[j] > pivot && j > start) j--;
+        if (i <= j)
+        {
+            swap(&arr[i], &arr[j]);
+            if (i != end) i++;
+            if (j != start) j--;
+        }
+	}
+	IntroQuickSort(arr, start, j, depth - 1);
+	IntroQuickSort(arr, i, end, depth - 1);
+}
+
+void introSort(int *arr, size_t n)
+{
+    size_t max_depth = log(n) / 2;
+    IntroQuickSort(arr, 0, n - 1, max_depth);
 }
 
 void insertionSort(int *arr, size_t left, size_t right)
@@ -105,74 +127,27 @@ void merge(int *arr, int *temp, size_t left, size_t mid, size_t right)
     size_t k = left;
     while (i <= mid && j <= right)
     {
-        if (arr[i] <= arr[j])
-        {
-            temp[k++] = arr[i++];
-        }
-        else
-        {
-            temp[k++] = arr[j++];
-        }
+        if (arr[i] <= arr[j]) temp[k++] = arr[i++];
+        else temp[k++] = arr[j++];
     }
-    while (i <= mid)
-    {
-        temp[k++] = arr[i++];
-    }
-    while (j <= right)
-    {
-        temp[k++] = arr[j++];
-    }
-    for (i = left; i <= right; i++)
-    {
-        arr[i] = temp[i];
-    }
+    while (i <= mid) temp[k++] = arr[i++];
+    while (j <= right) temp[k++] = arr[j++];
+    for (i = left; i <= right; i++) arr[i] = temp[i];
 }
 
 void timSort(int *arr, size_t n) {
     int *temp = (int *)malloc(n * sizeof(int));
-    if (temp == NULL)
-    {
-        return;
-    }
+    if (temp == NULL) return;
     for (size_t i = 0; i < n; i += RUN)
-    {
         insertionSort(arr, i, (i + RUN - 1 < n) ? (i + RUN - 1) : (n - 1));
-    }
-
     for (size_t size = RUN; size < n; size = 2 * size)
     {
         for (size_t left = 0; left < n; left += 2 * size)
         {
             size_t mid = left + size - 1;
             size_t right = (left + 2 * size - 1 < n) ? (left + 2 * size - 1) : (n - 1);
-            if (mid < right)
-            {
-                merge(arr, temp, left, mid, right);
-            }
+            if (mid < right) merge(arr, temp, left, mid, right);
         }
     }
     free(temp);
-}
-
-// size_t partition(int *arr, int low, int high)
-// {
-//     int pivot = arr[high];
-//     int i = (low - 1);
-//     for (size_t j = low; j <= high - 1; j++)
-//     {
-//         if (arr[j] <= pivot)
-//         {
-//             i++;
-//             swap(&arr[i], &arr[j]);
-//         }
-//     }
-//     swap(&arr[i + 1], &arr[high]);
-//     return (i + 1);
-// }
-
-void introsort(int *arr, size_t n) {
-    int maxDepth = 2 * (int)(log(n) / log(2));
-    quickSort(arr, 0, n - 1);
-    if (n > 1 && maxDepth > 0)
-        heapSort(arr, n);
 }

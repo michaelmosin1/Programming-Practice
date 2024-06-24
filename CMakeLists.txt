@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.8)
-project(bimbim)
+project(sorting_algo)
 enable_language(C)
 add_library(sorting sortalg.c)
 add_executable(main main.c)
