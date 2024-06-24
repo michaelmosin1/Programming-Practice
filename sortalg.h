@@ -14,3 +14,9 @@ void introSort(int *arr, size_t n);
 void insertionSort(int *arr, size_t left, size_t right);
 
 void timSort(int *arr, size_t n);
+
+void mergeSort(int *array, size_t n);
+
+void bubbleSort(int *array, size_t n);
+
+void combSort(int* array, size_t n);
