@@ -1,0 +1,5 @@
+cmake_minimum_required(VERSION 3.8)
+project(string_algo)
+enable_language(C)
+add_library(stralg SHARED stralg.c)
+target_compile_options(stralg PUBLIC "-O2")
